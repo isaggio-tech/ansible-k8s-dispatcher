@@ -1,0 +1,16 @@
+---
+- hosts: KubeWorkers
+  become: yes
+  become_user: root
+  become_method: sudo
+  vars_files:
+  - ../env_variables
+  tasks:
+  - name: Copying token to worker nodes
+    copy: src=/opt/kube-tokens/{{ token_file }} dest=/opt/kube-tokens/join_token
+
+  - name: Joining worker nodes with kubernetes master
+    shell: |
+     kubeadm reset -f
+     cat /opt/kube-tokens/join_token | tail -2 > out.sh
+     sh out.sh

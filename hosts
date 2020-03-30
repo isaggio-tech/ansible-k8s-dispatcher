@@ -1,0 +1,7 @@
+[KubeMasters]
+k8s-master ansible_host=192.168.1.28
+
+[KubeWorkers]
+k8s-worker-vm1 ansible_host=192.168.1.90
+k8s-worker-vm2 ansible_host=192.168.1.91
+k8s-worker-vm3 ansible_host=192.168.1.92
