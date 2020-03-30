@@ -1,4 +1,5 @@
-+++ Remove A Node (Worker Node)
+########################################
+Remove A Node (Worker Node)
 
 Cordon the node
 kubectl cordon <node name>
@@ -24,7 +25,6 @@ Join the node again as a fresh node
   kubectl uncordon <node name>
 
 ########################################
-
 Usage:
 
 Modify Files, hosts | env_variables | ansible.cfg (Adjust to your env details ip's, private_key_file etc) 
@@ -32,6 +32,7 @@ Modify Files, hosts | env_variables | ansible.cfg (Adjust to your env details ip
 ansible-playbook deploy_k8_master.yml -e "hostGroup=KubeMasters"
 ansible-playbook deploy_k8_workers.yml -e "hostGroup=KubeWorkers"
 
+########################################
 APPENDIX: Clean Installation
 
 systemctl stop docker kubelet
