@@ -17,8 +17,13 @@
     shell: kubeadm init --apiserver-advertise-address {{ad_addr}} --pod-network-cidr={{cidr_v}}
     register: output
 
+#  When ansible is executed on the k8s master node
+#  - name: Storing Logs and Generated token for future purpose
+#    local_action: copy content={{ output.stdout }} dest=/opt/kube-tokens/{{ token_file }}
+
+#  When ansible is executed from the remote Ansible Edge Node
   - name: Storing Logs and Generated token for future purpose.
-    local_action: copy content={{ output.stdout }} dest=/opt/kube-tokens/{{ token_file }}
+    copy: content={{ output.stdout }} dest=/opt/kube-tokens/{{ token_file }}
 
   - name: Copying required files
     shell: |

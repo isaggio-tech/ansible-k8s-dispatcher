@@ -16,3 +16,9 @@ ports:
 - "10250/tcp"
 
 token_file: join_token
+
+# Adding Workers HostNames, required for workers deploy playbook 
+workers:
+- centos7-vm1.isaggio.com 
+- centos7-vm2.isaggio.com
+- centos7-vm3.isaggio.com

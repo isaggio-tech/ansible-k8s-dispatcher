@@ -1,4 +1,31 @@
 ---
+- hosts: KubeMasters
+  become: yes
+  become_user: root
+  become_method: sudo
+  vars_files:
+  - ../env_variables
+  tasks:
+  - name: Fetch token from MasterNode
+    fetch:
+      src: /opt/kube-tokens/{{ token_file }}
+      dest: /tmp/.join_token
+      flat: true
+
+- hosts: KubeMasters
+  become: yes
+  become_user: root
+  become_method: sudo
+  vars_files:
+  - ../env_variables
+  tasks:
+  - name: Delete Worker Node Before Adding
+    shell: |
+     kubectl drain {{ item }} --delete-local-data --force --ignore-daemonsets
+     kubectl delete node {{ item }}
+    with_items: "{{ workers }}"
+    when: redeploy == "true"
+
 - hosts: KubeWorkers
   become: yes
   become_user: root
@@ -6,11 +33,52 @@
   vars_files:
   - ../env_variables
   tasks:
+  - name: Setup Token Directory Location
+    file:
+      path: /opt/kube-tokens
+      state: directory
   - name: Copying token to worker nodes
-    copy: src=/opt/kube-tokens/{{ token_file }} dest=/opt/kube-tokens/join_token
-
+    copy:
+      src: /tmp/.join_token
+      dest: /opt/kube-tokens/join_token
   - name: Joining worker nodes with kubernetes master
     shell: |
      kubeadm reset -f
      cat /opt/kube-tokens/join_token | tail -2 > out.sh
      sh out.sh
+    when: redeploy == "true"
+
+- hosts: KubeWorkers
+  become: yes
+  become_user: root
+  become_method: sudo
+  vars_files:
+  - ../env_variables
+  tasks:
+  - name: Setup Token Directory Location
+    file:
+      path: /opt/kube-tokens
+      state: directory
+  - name: Copying token to worker nodes
+    copy:
+      src: /tmp/.join_token
+      dest: /opt/kube-tokens/join_token
+  - name: Joining worker nodes with kubernetes master
+    shell: |
+     kubeadm reset -f
+     cat /opt/kube-tokens/join_token | tail -2 > out.sh
+     sh out.sh
+    when: redeploy == "false"
+
+- hosts: KubeMasters
+  become: yes
+  become_user: root
+  become_method: sudo
+  vars_files:
+  - ../env_variables
+  tasks:
+  - name: Kubectl Cluster Info
+    command: kubectl cluster-info
+    register: clusterinfo
+  - debug: msg="{{ clusterinfo.stderr }}"
+  - debug: msg="{{ clusterinfo.stdout }}"
