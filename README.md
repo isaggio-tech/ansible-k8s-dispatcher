@@ -181,6 +181,7 @@ Remove docker and kubelet Packages,
 
 ```
 systemctl stop docker kubelet; systemctl disable docker kubelet; yum remove docker* kube* -y
+```
 
 Find and Remove any Folders/Files for docker and Kubernetes/kubelet:
 
