@@ -35,12 +35,11 @@ ansible-playbook deploy_k8_workers.yml -e "hostGroup=KubeWorkers"
 ########################################
 APPENDIX: Clean Installation
 
-systemctl stop docker kubelet
-systemctl disable docker kubelet
-yum remove docker* kube* -y
+systemctl stop docker kubelet; systemctl disable docker kubelet; yum remove docker* kube* -y
 
-Find and Remove any Folders/Files for docker and Kubernetes/kubelet
+Find and Remove any Folders/Files for docker and Kubernetes/kubelet:
 
-find / -name 'docker'
-find / -name 'kubernetes*'
-find / -name 'kubelet'
+find / -name 'docker' | awk '{print "rm -rf " $0}' ; find / -name 'kubernetes*' | awk '{print "rm -rf " $0}'; find / -name 'kubelet' | awk '{print "rm -rf " $0}'
+
+Clean etcd on Master:
+rm -rf /var/lib/etcd
