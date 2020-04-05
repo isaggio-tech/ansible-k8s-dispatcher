@@ -14,8 +14,9 @@
     register: output
 
   - name: Initializing Kubernetes cluster
-    shell: kubeadm init --apiserver-advertise-address {{ad_addr}} --pod-network-cidr={{cidr_v}}
+    shell: kubeadm init --apiserver-advertise-address {{ad_addr}}
     register: output
+#    shell: kubeadm init --apiserver-advertise-address {{ad_addr}} --pod-network-cidr={{cidr_v}}
 
 #  When ansible is executed on the k8s master node
 #  - name: Storing Logs and Generated token for future purpose
@@ -31,5 +32,11 @@
      sudo cp -f /etc/kubernetes/admin.conf $HOME/.kube/config
      sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
-  - name: Install Network Flannel Add-on
-    command: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+#  - name: Install Network Flannel Add-on
+#    command: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+
+  - name: Set up weave network for CNI Overlay Network
+    shell: export KUBECONFIG=/etc/kubernetes/admin.conf && export kubever="$(kubectl version | base64 | tr -d '\n')&env.IPALLOC_RANGE={{cidr_v}}" && kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$kubever"
+    register: out
+
+  - debug: var=out.stdout_lines
