@@ -74,6 +74,10 @@ Assuming you have defined k8s-worker-xx with the correct IP address,
 If the deployment is for the first time use below,
 
 ```
+Disable Firewall - Good for VM Workers
+ansible-playbook deploy_k8_workers.yml -e "hostGroup=KubeWorkers redeploy=false" --skip-tags "disablefirewall"
+
+Enable Firewall
 ansible-playbook deploy_k8_workers.yml -e "hostGroup=KubeWorkers redeploy=false"
 ```
 
@@ -82,6 +86,9 @@ If the deployment is not new and you want to re-deploy the worker nodes. use bel
 Note: This will drain and delete and re-deploy worker nodes - so please be careful with your deployments
 
 ```
+Disable Firewalld - Good for VM Workers
+ansible-playbook deploy_k8_workers.yml -e "hostGroup=KubeWorkers redeploy=true" --skip-tags "disablefirewall"
+
 ansible-playbook deploy_k8_workers.yml -e "hostGroup=KubeWorkers redeploy=true"
 ```
 
@@ -193,4 +200,21 @@ Clean etcd on Master:
 
 ```
 rm -rf /var/lib/etcd
+```
+
+To CLeanup CNI Network Config,
+
+```
+kubeadm reset
+systemctl stop kubelet
+systemctl stop docker
+rm -rf /var/lib/cni/
+rm -rf /var/lib/kubelet/*
+rm -rf /etc/cni
+rm -rf /opt/cni
+ifconfig cni0 down
+ifconfig flannel.1 down
+ifconfig docker0 down
+ip link delete cni0
+ip link delete flannel.1
 ```

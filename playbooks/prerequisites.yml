@@ -15,4 +15,10 @@
      regexp: '(.*swap*)'
      replace: '#\1'
 
-  
+# Dsiable SELINUX, https://stackoverflow.com/questions/44253909/how-to-disable-selinux-on-ubuntu-with-ansible
+  - name: enforce permissive until reboot
+    shell: sudo setenforce 0 || exit 0
+
+  - name: Disable SELinux
+    selinux:
+     state: disabled

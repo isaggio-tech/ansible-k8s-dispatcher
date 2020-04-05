@@ -24,9 +24,14 @@
       gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
         https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 
-  - name: Installing Docker and firewalld
+  - name: Installing firewalld
     shell: |
      yum install firewalld -y
+    tags:
+    - disablefirewall
+
+  - name: Installing Docker
+    shell: |
      yum install -y yum-utils device-mapper-persistent-data lvm2
      yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
      yum install docker-ce -y
@@ -47,13 +52,35 @@
      enabled: yes
     with_items: "{{ services }}"
 
-  - name: Allow Network Ports in Firewalld
+  - name: Starting and Enabling the Firewall Service
+    service:
+     name: "{{ firewall_service }}"
+     state: started
+     enabled: yes
+    tags:
+    - disablefirewall
+
+  - name: Allow Network Ports in Firewalld on MASTER
     firewalld:
      port: "{{ item }}"
      state: enabled
      permanent: yes
      immediate: yes
-    with_items: "{{ ports }}"
+    with_items: "{{ master_ports }}"
+    when: hostGroup == "KubeMasters"
+    tags:
+    - disablefirewall
+
+  - name: Allow Network Ports in Firewalld on WORKERS
+    firewalld:
+     port: "{{ item }}"
+     state: enabled
+     permanent: yes
+     immediate: yes
+    with_items: "{{ worker_ports }}"
+    when: hostGroup == "KubeWorkers"
+    tags: 
+    - disablefirewall
 
   - name: Enabling Bridge Firewall Rule
     shell: "echo '1' > /proc/sys/net/bridge/bridge-nf-call-iptables"
