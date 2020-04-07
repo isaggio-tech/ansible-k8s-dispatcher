@@ -193,7 +193,7 @@ systemctl stop docker kubelet; systemctl disable docker kubelet; yum remove dock
 Find and Remove any Folders/Files for docker and Kubernetes/kubelet:
 
 ```
-find / -name 'docker' | awk '{print "rm -rf " $0}' ; find / -name 'kubernetes*' | awk '{print "rm -rf " $0}'; find / -name 'kubelet' | awk '{print "rm -rf " $0}'
+find / -name 'docker' | awk '{print "rm -rf " $0}' ; find / -name 'kubernetes*' | awk '{print "rm -rf " $0}'; find / -name 'kubelet' | awk '{print "rm -rf " $0}'; find / -name 'weave' | awk '{print "rm -rf " $0}'; find / -name 'flannel' | awk '{print "rm -rf " $0}'
 ```
 
 Clean etcd on Master:
