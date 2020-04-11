@@ -14,9 +14,9 @@
     register: output
 
   - name: Initializing Kubernetes cluster
-    shell: kubeadm init --apiserver-advertise-address {{ad_addr}}
+    shell: kubeadm init --apiserver-advertise-address {{ad_addr}} --pod-network-cidr={{weave_net_subnet}} --service-cidr={{svc_ip_range}}
     register: output
-#    shell: kubeadm init --apiserver-advertise-address {{ad_addr}} --pod-network-cidr={{cidr_v}}
+#    shell: kubeadm init --apiserver-advertise-address {{ad_addr}} --pod-network-cidr={{network_cidr}} --service-cidr={{svc_ip_range}}
 
 #  When ansible is executed on the k8s master node
 #  - name: Storing Logs and Generated token for future purpose
@@ -36,7 +36,11 @@
 #    command: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
 
   - name: Set up weave network for CNI Overlay Network
-    shell: export KUBECONFIG=/etc/kubernetes/admin.conf && export kubever="$(kubectl version | base64 | tr -d '\n')&env.IPALLOC_RANGE={{cidr_v}}" && kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$kubever"
+    shell: export KUBECONFIG=/etc/kubernetes/admin.conf && export kubever="$(kubectl version | base64 | tr -d '\n')&env.IPALLOC_RANGE={{weave_net}}" && kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$kubever"
     register: out
 
+
+#    shell: export KUBECONFIG=/etc/kubernetes/admin.conf && export kubever="$(kubectl version | base64 | tr -d '\n')&env.IPALLOC_RANGE={{svc_ip_v}}" && kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$kubever"
+
+#    shell: export KUBECONFIG=/etc/kubernetes/admin.conf && export kubever="$(kubectl version | base64 | tr -d '\n')&env.IPALLOC_DEFAULT_SUBNET={{cidr_v}}&env.IPALLOC_RANGE={{svc_ip_v}}" && kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$kubever"
   - debug: var=out.stdout_lines

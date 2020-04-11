@@ -1,6 +1,8 @@
 #Enter the IP Address of the Kubernetes Master node to the ad_addr variable.
 ad_addr: 192.168.1.28
-cidr_v: 172.16.0.0/16
+weave_net: 172.16.0.0/16 #CIDR 
+weave_net_subnet: 172.16.0.0/24 #PODS SUBNET 
+svc_ip_range: 182.16.0.0/24
 # We use cidr_v for weave network ip range, IPALLOC_RANGE
 
 packages:
@@ -26,6 +28,8 @@ worker_ports:
 - "10255/tcp"
 - "30000-32767/tcp"
 - "6783/tcp"
+
+service_nodeports: "32400-32500/tcp"
 
 token_file: join_token
 
