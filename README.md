@@ -87,12 +87,6 @@ ansible-playbook deploy_k8_workers.yml -e "hostGroup=KubeWorkers redeploy=false"
 If the deployment is not new and you want to re-deploy the worker nodes. use below,
 
 Note1: This will drain and delete and re-deploy worker nodes - so please be careful with your deployments
-Note2: To Disable Firewalld on the Master, before running the playbooks run below on the nodes - Weave Net is not working with Firewalld Enabled (IMPORTANT)
-
-Run Below on the Nodes ->
-systemctl stop firewalld
-systemctl disable firewalld
-systemctl mask firewalld
 
 ```
 Disable Firewalld 
@@ -102,6 +96,16 @@ ansible-playbook deploy_k8_workers.yml -e "hostGroup=KubeWorkers redeploy=true"
 ```
 
 Note: Adding new worker node also requires redeployment flag
+
+FIREWALLD NOTE: To Disable Firewalld on the Master, before running the playbooks run below on the nodes - Weave Net is not working with Firewalld Enabled (IMPORTANT)
+
+Run Below on the Nodes ->
+
+```
+systemctl stop firewalld
+systemctl disable firewalld
+systemctl mask firewalld
+```
 
 ### Verify Cluster Status
 
