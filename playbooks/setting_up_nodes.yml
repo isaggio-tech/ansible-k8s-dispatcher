@@ -23,6 +23,12 @@
       repo_gpgcheck=1
       gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
         https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+  
+  - name: Install Linux Network Tools
+    shell: |
+     yum install bridge-utils -y
+     yum install telnet -y
+     yum install iproute -y
 
   - name: Installing firewalld
     shell: |
@@ -80,6 +86,28 @@
     with_items: "{{ worker_ports }}"
     when: hostGroup == "KubeWorkers"
     tags: 
+    - disablefirewall
+
+  - name: Allow NodePorts on WORKERS, for Public Access
+    firewalld:
+     port: "{{ service_nodeports }}"
+     zone: public
+     state: enabled
+     permanent: yes
+     immediate: yes
+    when: hostGroup == "KubeWorkers"
+    tags:
+    - disablefirewall
+
+  - name: Allow NodePorts on MASTER, for Public Access
+    firewalld:
+     port: "{{ service_nodeports }}"
+     zone: public
+     state: enabled
+     permanent: yes
+     immediate: yes
+    when: hostGroup == "KubeMasters"
+    tags:
     - disablefirewall
 
   - name: Enabling Bridge Firewall Rule

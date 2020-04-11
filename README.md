@@ -64,6 +64,9 @@ If you see above output, please proceed deploying the playbook
 Assuming you have defined k8s-master with the correct IP address, run below
 
 ```
+Disable Firewall:
+ansible-playbook deploy_k8_master.yml -e "hostGroup=KubeMasters" --skip-tags "disablefirewall"
+
 ansible-playbook deploy_k8_master.yml -e "hostGroup=KubeMasters"
 ```
 
@@ -74,7 +77,7 @@ Assuming you have defined k8s-worker-xx with the correct IP address,
 If the deployment is for the first time use below,
 
 ```
-Disable Firewall - Good for VM Workers
+Disable Firewall
 ansible-playbook deploy_k8_workers.yml -e "hostGroup=KubeWorkers redeploy=false" --skip-tags "disablefirewall"
 
 Enable Firewall
@@ -83,10 +86,16 @@ ansible-playbook deploy_k8_workers.yml -e "hostGroup=KubeWorkers redeploy=false"
 
 If the deployment is not new and you want to re-deploy the worker nodes. use below,
 
-Note: This will drain and delete and re-deploy worker nodes - so please be careful with your deployments
+Note1: This will drain and delete and re-deploy worker nodes - so please be careful with your deployments
+Note2: To Disable Firewalld on the Master, before running the playbooks run below on the nodes - Weave Net is not working with Firewalld Enabled (IMPORTANT)
+
+Run Below on the Nodes ->
+systemctl stop firewalld
+systemctl disable firewalld
+systemctl mask firewalld
 
 ```
-Disable Firewalld - Good for VM Workers
+Disable Firewalld 
 ansible-playbook deploy_k8_workers.yml -e "hostGroup=KubeWorkers redeploy=true" --skip-tags "disablefirewall"
 
 ansible-playbook deploy_k8_workers.yml -e "hostGroup=KubeWorkers redeploy=true"
@@ -205,9 +214,23 @@ rm -rf /var/lib/etcd
 To CLeanup CNI Network Config,
 
 ```
-kubeadm reset
-systemctl stop kubelet
-systemctl stop docker
+CLean up Weave-Net:
+
+sudo curl -L git.io/weave -o /usr/local/bin/weave
+sudo chmod a+x /usr/local/bin/weave
+weave reset
+
+rm -rf /var/lib/cni/
+rm -rf /var/lib/kubelet/*
+rm -rf /etc/cni
+rm -rf /opt/cni
+ifconfig weave down
+sudo ip link delete weave
+ifconfig docker0 down
+
+
+Cleanup FLANNEL:
+
 rm -rf /var/lib/cni/
 rm -rf /var/lib/kubelet/*
 rm -rf /etc/cni
